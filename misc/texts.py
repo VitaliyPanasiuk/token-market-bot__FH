@@ -1,0 +1,5 @@
+SERVICE_FIRST = 'Tori.fi'
+
+SERVICE_SECOND = 'Olx.pt'
+
+SERVICE_THIRD = 'Olx.pl'
