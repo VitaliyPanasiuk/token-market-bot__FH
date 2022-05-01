@@ -109,7 +109,7 @@ async def get_stats_command(message, state=changetext.get_description):
         if str(trans[2]) == str(today):
             sum_of_donate += trans[3]
 
-    users = sqlite_db_users.cur.execute('SELECT * FROM donate').fetchall()
+    users = sqlite_db_users.cur.execute('SELECT * FROM users').fetchall()
     for user in users:
         amount_of_users += 1
 
