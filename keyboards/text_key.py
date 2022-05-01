@@ -16,6 +16,7 @@ def start_markup():
 def services_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add(get_text('service_first'),get_text('service_second'),get_text('service_third'))
+    markup.add(back_message)
 
     return markup
 
