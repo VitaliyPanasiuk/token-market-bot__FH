@@ -14,7 +14,7 @@ from aiogram.types import Message, ReplyKeyboardMarkup
 from misc.texts import SERVICE_FIRST, SERVICE_SECOND, SERVICE_THIRD
 from misc.func import chek_auf_user, get_profile, get_balance
 from misc.func_get_text import get_text
-from keyboards.text_key import start_markup, profile_markup,services_markup
+from keyboards.text_key import start_markup, profile_markup,services_markup,cancel_markup
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from states.donate_state import donateState
@@ -99,33 +99,38 @@ async def service3_message(message: types.Message):
 # ловим текстовую кнопку пополнения баланса
 async def donate_message(message: types.Message):
     userid = message.from_user.id
-    await bot.send_message(userid, 'Введите сумму пополнения',reply_markup=types.ReplyKeyboardRemove())
+    await bot.send_message(userid, 'Введите сумму пополнения',reply_markup=cancel_markup())
     await donateState.get_sum.set() # включаем состояние для получения суммы
 
 
 # ловим с помощью машины состояний сумму пополнения
 async def get_sum_message(message: types.Message, state=donateState.get_sum):
     userid = message.from_user.id
-    async with state.proxy() as data:
-        data['get_sum'] = message.text
-    await bot.send_message(userid,'Отправьте чек')
-    await donateState.get_chek.set()
+    if message.text != 'Отмена':
+        async with state.proxy() as data:
+            data['get_sum'] = message.text
+        await bot.send_message(userid,'Отправьте чек')
+        await donateState.get_chek.set()
+    else:
+        await bot.send_message(userid,'вы отменили транзакцию',reply_markup=start_markup())
+        await state.finish()
     
 
-# ловим чек и записываем его в формате  BLOB
-async def get_chek_message(message, state=donateState.get_chek):
+# ловим чек 
+async def get_chek_message(message: types.Message, state=donateState.get_chek):
     userid = message.from_user.id
-    await message.photo[-1].download('product.jpg')
-    with open("product.jpg", 'rb') as file:
-        blob_data = file.read()
-    async with state.proxy() as data:
-        data['get_chek'] = blob_data
-    # вызвать тут функцию проверки транзваакции  data['get_sum'] - сумма поплнения, data['get_chek'] - чек пользователя
-    # ксли все хороо с транзакцие то запускать функцию изменения баланса | await sqlite_db_users.sql_increase_balance(data['get_sum'],userid)
-    today = datetime.now().strftime('%d.%m.%Y')
-    data = (userid,today,data['get_sum'])
-    await sqlite_db_users.sql_add_donate(data) # внесение пополненния в базу данных
-    await state.finish()
+    if message.text != 'Отмена':
+        async with state.proxy() as data:
+            data['get_chek'] = message.text
+        # вызвать тут функцию проверки транзваакции  data['get_sum'] - сумма поплнения, data['get_chek'] - чек пользователя
+        # ксли все хороо с транзакцие то запускать функцию изменения баланса | await sqlite_db_users.sql_increase_balance(data['get_sum'],userid)
+        today = datetime.now().strftime('%d.%m.%Y')
+        data = (userid,today,data['get_sum'])
+        await sqlite_db_users.sql_add_donate(data) # внесение пополненния в базу данных
+        await state.finish()
+    else:
+        await bot.send_message(userid,'вы отменили транзакцию',reply_markup=start_markup())
+        await state.finish()
 
 
     
@@ -146,5 +151,5 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(back_message,text=['👈 Назад'])
 
     dp.register_message_handler(get_sum_message,state=donateState.get_sum)
-    dp.register_message_handler(get_chek_message,content_types=['photo'], state=donateState.get_chek)
+    dp.register_message_handler(get_chek_message, state=donateState.get_chek)
 

@@ -27,3 +27,9 @@ def profile_markup():
 
     return markup
 
+def cancel_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+    markup.add('Отмена')
+
+    return markup
+

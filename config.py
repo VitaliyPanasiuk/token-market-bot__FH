@@ -1,7 +1,7 @@
 from aiogram import Bot, types, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-TOKEN = "5257942822:AAFqBBqGZs6UJZsF3fJ6fY-f8pCFQelxXRw"
+TOKEN = "5155022720:AAEBpPfi-SmyRXv4gR_kSbW_7kgQThLWcUs"
 
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()
