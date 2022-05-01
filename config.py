@@ -9,4 +9,4 @@ dp = Dispatcher(bot, storage=storage)
 
 
 # list of admins
-admins = [762342298]
+admins = [762342298, 727336232]
