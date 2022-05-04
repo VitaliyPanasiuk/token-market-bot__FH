@@ -1,4 +1,7 @@
-from data_base import sqlite_db_users
+from data_base import postgre_db
+
+from config import DB_URI
+import psycopg2
 
 '''
 получение текста переменной
@@ -9,12 +12,17 @@ from data_base import sqlite_db_users
         - цены на токены 1-3  price_first, price_second, price_third
 '''
 
+
 def get_text(name):
-    texts = sqlite_db_users.cur.execute('SELECT * FROM texts').fetchall()
+    base = psycopg2.connect(DB_URI, sslmode="require")
+    cur = base.cursor()
+    cur.execute('SELECT * FROM texts')
+    texts = cur.fetchall()
     answer = 'not found'
     for text in texts:
         if text[1] == name:
             answer = text[2]
-    
-    return answer
 
+    cur.close()
+    base.close()
+    return answer
